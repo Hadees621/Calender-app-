@@ -9,7 +9,6 @@ export const generateDate = (
 
 	const arrayOfDate = [];
 
-	// create prefix date
 	for (let i = 0; i < firstDateOfMonth.day(); i++) {
 		const date = firstDateOfMonth.day(i);
 
@@ -19,7 +18,6 @@ export const generateDate = (
 		});
 	}
 
-	// generate current date
 	for (let i = firstDateOfMonth.date(); i <= lastDateOfMonth.date(); i++) {
 		arrayOfDate.push({
 			currentMonth: true,
@@ -30,7 +28,7 @@ export const generateDate = (
 		});
 	}
 
-	const remaining = 42 - arrayOfDate.length;
+	const remaining = 35 - arrayOfDate.length;
 
 	for (
 		let i = lastDateOfMonth.date() + 1;

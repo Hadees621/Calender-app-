@@ -1,18 +1,20 @@
-import React from 'react';
-import { GrFormNext, GrFormPrevious } from 'react-icons/gr';
-import { generateDate, months } from '../util/calendar';
-import cn from '../util/cn';
 import dayjs from 'dayjs';
-import useCustom from '../hooks';
+import React from 'react';
+import cn from '../util/cn';
 import Event from './Event';
+import { useQuery } from 'react-query';
+import { getEvents } from '../service';
+import { generateDate, months } from '../util/calendar';
+import { GrFormNext, GrFormPrevious } from 'react-icons/gr';
 
 function Cal(props) {
   const days = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
   const currentDate = dayjs();
-  const { events } = useCustom();
+
+  const { data } = useQuery('eventData', getEvents);
 
   return (
-    <div className="w-[80%] h-[95%] rounded-lg bg-white shadow-md">
+    <div className="w-[80%] h-[95%] rounded-lg bg-white shadow-md overscroll-auto no-scrollbar">
       <div
         className="flex justify-between items-center px-5"
         style={{ borderBottom: '1px solid #ced4d7' }}
@@ -28,7 +30,7 @@ function Cal(props) {
             }}
           />
           <h1
-            className=" cursor-pointer hover:scale-105 transition-all"
+            className="cursor-pointer hover:scale-105 transition-all"
             onClick={() => {
               props.setToday(currentDate);
             }}
@@ -62,6 +64,7 @@ function Cal(props) {
       <div className=" grid grid-cols-7 ">
         {generateDate(props.today.month(), props.today.year()).map(
           ({ date, currentMonth, today }, index) => {
+            let count = 0;
             return (
               <div
                 key={index}
@@ -76,7 +79,7 @@ function Cal(props) {
                       date.toDate().toDateString()
                       ? 'bg-black text-white'
                       : '',
-                    'h-10 w-10 relative  rounded-full flex justify-center items-center hover:bg-black hover:text-white transition-all cursor-pointer select-none font-bold mb-5'
+                    'h-10 w-10 relative  rounded-full flex justify-center items-center hover:bg-black hover:text-white transition-all cursor-pointer select-none font-bold mb-2'
                   )}
                   onClick={() => {
                     props.setSelectDate(date);
@@ -84,17 +87,22 @@ function Cal(props) {
                 >
                   {date.date()}
                 </h1>
-                {events.length > 0 &&
-                  events.map((event) => {
-                    console.log();
-                    const eve =
-                      event.day === date.date() &&
-                      event.month ===
-                      props.today.month()
-                        ? event
-                        : undefined;
+                {data?.length > 0 &&
+                  data.map((event) => {
+                    const currDate =
+                      date.date() +
+                      ' ' +
+                      months[props.today.month()].substring(0, 3).toUpperCase();
 
-                    return eve !== undefined && <Event {...event} />;
+                    if (event.date === currDate && currentMonth) {
+                      count += 1;
+                      if (count === 2) {
+                        return <Event title="See More" />;
+                      } else if (count < 2) {
+                        return <Event {...event} />;
+                      }
+                    }
+                    return '';
                   })}
               </div>
             );

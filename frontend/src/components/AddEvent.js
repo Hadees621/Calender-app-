@@ -1,21 +1,18 @@
 import React, { useRef } from 'react';
-import useCustom from '../hooks';
-import { months } from '../util/calendar';
+import { createEvent } from '../service';
+import { useMutation } from 'react-query';
 
 function AddEvent(props) {
-  const { events, setEvents } = useCustom();
-
+  const mutation = useMutation(createEvent);
   const inputRef = useRef(null);
-  const handleSave = () => {
+  console.log('props', props);
+  const handleSave = async () => {
     if (inputRef.current) {
-      setEvents([
-        ...events,
-        {
-          day: parseInt(props.selectDate.format('D').toUpperCase()),
-          month: months.indexOf(props.selectDate.format('MMMM')),
-          title: inputRef.current.value,
-        },
-      ]);
+      const data = {
+        title: inputRef.current.value,
+        date: props.selectDate.format('D MMM').toUpperCase(),
+      };
+      await mutation.mutateAsync(data);
       props.addEvent(false);
     }
   };
